@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Register - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(44,85,48,0.1) 0%, rgba(74,124,89,0.1) 100%);
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-title {
+        font-family: var(--racecoin-font);
+        font-size: 3.2rem;
+        background: linear-gradient(135deg, var(--racecoin-accent), #ffed4a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1.5px;
+        text-align: center;
+    }
+    
+    .register-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Animated background elements */
+    .bg-horse {
+        position: absolute;
+        font-size: 3rem;
+        opacity: 0.1;
+        animation: gallop 12s linear infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes gallop {
+        0% { transform: translateX(-100px) translateY(0); }
+        50% { transform: translateX(50vw) translateY(-20px); }
+        100% { transform: translateX(calc(100vw + 100px)) translateY(0); }
+    }
+    
+    .bg-confetti {
+        position: absolute;
+        font-size: 1.5rem;
+        opacity: 0.2;
+        animation: float 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(180deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .main-title { font-size: 2.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-wrapper">
+    <!-- Animated background elements -->
+    <span class="bg-horse" style="top: 20%; animation-delay: 0s;">🐎</span>
+    <span class="bg-horse" style="top: 60%; animation-delay: 3s;">🏇</span>
+    <span class="bg-confetti" style="left: 10%; top: 15%; animation-delay: 1s;">🎉</span>
+    <span class="bg-confetti" style="left: 85%; top: 25%; animation-delay: 4s;">🎊</span>
+    <span class="bg-confetti" style="left: 70%; top: 70%; animation-delay: 6s;">🎉</span>
+    <span class="bg-confetti" style="left: 20%; top: 80%; animation-delay: 2s;">🎊</span>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="text-center mb-4">
+                    <h1 class="main-title racecoin-glow">{{ app_name }}</h1>
+                    <p class="lead text-muted">{{ app_tagline }}</p>
+                </div>
+                
+                <div class="card register-card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h3><i class="fas fa-user-plus me-2"></i>Join {{ app_name }}</h3>
+                            <p class="text-muted">Start your virtual racing journey today</p>
+                        </div>
+                        
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-warning">
+                                    {{ messages[0] }}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Choose Username
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="username" name="username" 
+                                       placeholder="Your unique racing name" required>
+                                <small class="form-text text-muted">This will be displayed on leaderboards</small>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Create Password
+                                </label>
+                                <input type="password" class="form-control form-control-lg" id="password" name="password" 
+                                       placeholder="Secure password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-rocket me-2"></i>Start Your Journey
+                            </button>
+                        </form>
+                        
+                        <div class="text-center">
+                            <p class="mb-0">Already racing with us? 
+                                <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold">
+                                    Sign In
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Welcome benefits -->
+                <div class="card mt-4" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+                    <div class="card-body p-4">
+                        <h5 class="text-center mb-3">
+                            <i class="fas fa-gift me-2 text-warning"></i>New Member Benefits
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-2">
+                                <i class="fas fa-coins text-warning me-1"></i>
+                                <strong>1,000 {{ currency_symbol }}</strong><br>
+                                <small class="text-muted">Starting {{ currency_name }}</small>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <i class="fas fa-trophy text-success me-1"></i>
+                                <strong>Welcome Badge</strong><br>
+                                <small class="text-muted">First achievement</small>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <i class="fas fa-star text-primary me-1"></i>
+                                <strong>Beginner Rank</strong><br>
+                                <small class="text-muted">Start your journey</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

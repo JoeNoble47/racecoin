@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Multi Bet - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .multibet-container {
+        background: rgba(255,255,255,0.97);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+        padding: 2.5rem;
+        margin: 2rem auto;
+        max-width: 700px;
+    }
+    .race-selection {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+    }
+    .form-select {
+        background: #fff;
+        border: 2px solid var(--racecoin-accent);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-weight: 500;
+    }
+    .form-select:focus {
+        border-color: #f3722c;
+        box-shadow: 0 0 0 0.2rem rgba(238, 179, 8, 0.25);
+    }
+    .coins-display {
+        background: var(--racecoin-accent);
+        color: #1b3a1a;
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    .accumulator-info {
+        background: linear-gradient(120deg, #e8f5e8 0%, #f0f8f0 100%);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--racecoin-accent);
+    }
+    .favorite-star {
+        color: var(--racecoin-accent);
+        font-weight: bold;
+    }
+    @media (max-width: 600px) {
+        .multibet-container { 
+            padding: 1.5rem 1rem; 
+            margin: 1rem 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="racecoin-glow">🎯 Multi Bet (Accumulator) 🎯</h2>
+        <p class="text-muted">Pick multiple winners for bigger rewards</p>
+    </div>
+    
+    <div class="multibet-container">
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+            <a href="{{ url_for('profile') }}" class="btn btn-info">Profile</a>
+            <a href="{{ url_for('leaderboard') }}" class="btn btn-warning">🏆 Leaderboard</a>
+            <a href="{{ url_for('races') }}" class="btn btn-secondary">Back to Races</a>
+        </div>
+        
+        <div class="text-center">
+            <div class="coins-display">
+                <strong>{{ currency_name }} available:</strong> {{ coins }} {{ currency_symbol }}
+            </div>
+        </div>
+        
+        <div class="accumulator-info">
+            <h5 class="text-primary">📈 How Accumulator Bets Work</h5>
+            <p class="mb-0">Pick a horse in at least two races below to place a double, treble, or accumulator bet. <strong>All your selections must win</strong> for a payout! The more races you select, the bigger your potential winnings.</p>
+        </div>
+        
+        <form method="POST" class="mb-3">
+            {% for race in races %}
+            <div class="race-selection">
+                <label class="form-label">🏁 Race {{ race.id }}:</label>
+                <select class="form-select" name="race_{{ race.id }}">
+                    <option value="">No selection</option>
+                    {% for horse in race.horses %}
+                    <option value="{{ horse.name }}">
+                        {{ horse.name }} 
+                        (Odds: {{ horse.fractional_odds }}, Momentum: {{ horse.momentum }})
+                        {% if horse.is_favourite %}<span class="favorite-star">★</span>{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            
+            <div class="mb-3">
+                <label for="multi_stake" class="form-label">Stake Amount:</label>
+                <input type="number" class="form-control" id="multi_stake" name="multi_stake" min="1" max="{{ coins }}" required placeholder="Enter your stake">
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg me-2">Place Multi Bet</button>
+                <a href="{{ url_for('races') }}" class="btn btn-secondary">Back to Races</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

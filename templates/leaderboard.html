@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaderboard-container {
+        background: rgba(255,255,255,0.97);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .avatar {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: inline-block;
+        background: #444;
+        color: #fff;
+        text-align: center;
+        line-height: 32px;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+    .gold { background: var(--racecoin-accent); color: #222; }
+    .silver { background: silver; color: #222; }
+    .bronze { background: #cd7f32; color: #fff; }
+    th, td { vertical-align: middle !important; }
+    .xp-badge {
+        background: #4ea8de;
+        color: #fff;
+        font-size: 1rem;
+        padding: 0.3em 0.7em;
+        border-radius: 1em;
+        margin-left: 0.3em;
+    }
+    .rank-badge {
+        background: var(--racecoin-accent);
+        color: #1b3a1a;
+        font-size: 1rem;
+        padding: 0.3em 0.7em;
+        border-radius: 1em;
+        margin-left: 0.3em;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    .level-badge {
+        background: #7b2ff2;
+        color: #fff;
+        font-size: 1rem;
+        padding: 0.3em 0.7em;
+        border-radius: 1em;
+        margin-left: 0.3em;
+        font-weight: bold;
+        letter-spacing: 1px;
+        min-width: 2.8em;
+        display: inline-block;
+    }
+    .achievements-cell {
+        min-width: 90px;
+        white-space: nowrap;
+    }
+    .badge-icon {
+        font-size: 1.5rem;
+        margin: 0.1em 0.18em;
+        cursor: pointer;
+        transition: transform 0.1s;
+        display: inline-block;
+        background: #fffbe6;
+        border-radius: 50%;
+        border: 1px solid var(--racecoin-accent);
+        padding: 0.08em 0.18em;
+    }
+    .badge-icon:hover {
+        transform: scale(1.15);
+        filter: brightness(1.2);
+    }
+    .plus-badge {
+        background: var(--racecoin-accent);
+        color: #1b3a1a;
+        border-radius: 1em;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 0.2em 0.7em;
+        margin: 0.1em 0.18em;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .badge-popup {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        background: #233a23;
+        color: var(--racecoin-accent);
+        border-radius: 14px;
+        box-shadow: 0 4px 32px rgba(60,60,60,0.25);
+        padding: 1.5em 2em;
+        min-width: 220px;
+        max-width: 90vw;
+        text-align: center;
+        font-size: 1.1em;
+    }
+    .badge-popup .close-btn {
+        background: var(--racecoin-accent);
+        color: #233a23;
+        border: none;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 0.2em 1em;
+        margin-top: 1em;
+        cursor: pointer;
+    }
+    .popup-badge-row {
+        margin-bottom: 0.7em;
+    }
+    .popup-badge-icon {
+        font-size: 2rem;
+        margin: 0.1em 0.2em;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .popup-badge-title {
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-left: 0.5em;
+        color: var(--racecoin-accent);
+    }
+    .popup-badge-desc {
+        font-size: 1em;
+        color: #b8d8a7;
+        margin-bottom: 0.2em;
+    }
+    .popup-badge-date {
+        font-size: 0.95em;
+        color: #b8d8a7;
+    }
+    .popup-badge-reward {
+        color: var(--racecoin-accent);
+        font-size: 0.95em;
+    }
+    @media (max-width: 1100px) {
+        .hide-mobile, .hide-tablet { display: none !important; }
+    }
+    @media (max-width: 900px) {
+        .hide-mobile { display: none !important; }
+    }
+    @media (max-width: 700px) {
+        .xp-badge, .level-badge, .rank-badge, .badge-icon, .plus-badge { font-size: 1.2rem !important; padding: 0.13em 0.25em !important; }
+        th, td { font-size: 0.90rem !important; padding: 0.2em !important; }
+        .level-badge { min-width: 2em; }
+        .achievements-cell { min-width: 70px; }
+    }
+    @media (max-width: 600px) {
+        .xp-col, .hide-mobile, .hide-tablet { display: none !important; }
+        .level-badge { font-size: 0.95rem !important; padding: 0.1em 0.18em !important; min-width: 1.5em; }
+        .achievements-cell { min-width: 60px; }
+        th, td { font-size: 0.80rem !important; padding: 0.13em !important; }
+        .badge-icon { font-size: 1.7rem !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="racecoin-glow">🏆 {{ app_name }} Leaderboard 🏆</h2>
+        <p class="text-muted">Top performers in virtual horse racing</p>
+    </div>
+    
+    <div class="leaderboard-container">
+        <div class="table-responsive" style="overflow-x:auto;">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>User</th>
+                    <th class="xp-col">XP</th>
+                    <th>
+                        <span class="d-none d-sm-inline">Level</span>
+                        <span class="d-inline d-sm-none">Lv</span>
+                    </th>
+                    <th>Rank Title</th>
+                    <th>Badges</th>
+                    <th>{{ currency_symbol }}</th>
+                    <th>Wins</th>
+                    <th class="hide-mobile">Streak</th>
+                    <th class="hide-mobile">Longest Streak</th>
+                    <th class="hide-mobile">Highest Acca</th>
+                    <th class="hide-mobile">Total Bets</th>
+                    <th class="hide-mobile">Biggest Win</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in leaderboard %}
+                <tr {% if session.username == user['username'] %}class="table-success"{% endif %}>
+                    <td>
+                        {% if loop.index == 1 %}
+                            🥇
+                        {% elif loop.index == 2 %}
+                            🥈
+                        {% elif loop.index == 3 %}
+                            🥉
+                        {% else %}
+                            {{ loop.index }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="avatar
+                            {% if loop.index == 1 %}gold
+                            {% elif loop.index == 2 %}silver
+                            {% elif loop.index == 3 %}bronze
+                            {% endif %}
+                        ">
+                            {{ user.username[0:2]|upper }}
+                        </span>
+                        {{ user.username }}
+                        {% if session.username == user.username %}
+                            <span class="badge bg-info text-dark ms-2">You</span>
+                        {% endif %}
+                    </td>
+                    <td class="xp-col">
+                        <span class="xp-badge">{{ user.xp }}</span>
+                    </td>
+                    <td>
+                        <span class="level-badge">
+                            <span class="d-none d-sm-inline">Level </span>{{ user.number_rank }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="rank-badge">{{ user.rank_title }}</span>
+                    </td>
+                    <td class="achievements-cell">
+                        {% set max_badges = 3 %}
+                        {% if user.achievements and user.achievements|length > 0 %}
+                            {% for ach in user.achievements[:max_badges] %}
+                                <span class="badge-icon"
+                                    title="{{ ach.name }}"
+                                    onclick="showBadgePopup('{{ ach.icon|e }}', '{{ ach.name|e }}', '{{ ach.description|e }}', '{{ ach.unlocked_on|e }}', '{{ ach.reward|e }}')">
+                                    {{ ach.icon }}
+                                </span>
+                            {% endfor %}
+                            {% if user.achievements|length > max_badges %}
+                                <span class="plus-badge" onclick="showAllBadgesPopup({{ user.achievements|tojson|safe }})">
+                                    +{{ user.achievements|length - max_badges }}
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color:#999;">No badges</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.coins }}</td>
+                    <td>{{ user.wins }}</td>
+                    <td class="hide-mobile">{{ user.current_streak }}</td>
+                    <td class="hide-mobile">{{ user.longest_streak }}</td>
+                    <td class="hide-mobile">{{ user.highest_accumulator }}</td>
+                    <td class="hide-mobile">{{ user.total_bets }}</td>
+                    <td class="hide-mobile">{{ user.biggest_single_win }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+    <!-- Single badge popup -->
+    <div id="badge-popup" class="badge-popup">
+        <div id="badge-popup-icon" style="font-size:2.5rem;"></div>
+        <div id="badge-popup-title" style="font-weight:bold; font-size:1.2em; margin-top:0.3em;"></div>
+        <div id="badge-popup-desc" style="margin-top:0.5em;"></div>
+        <div id="badge-popup-date" style="margin-top:0.7em; font-size:0.95em; color:#b8d8a7;"></div>
+        <div id="badge-popup-reward" style="margin-top:0.4em;"></div>
+        <button class="close-btn" onclick="closeBadgePopup()">Close</button>
+    </div>
+    
+    <!-- All badges popup -->
+    <div id="all-badges-popup" class="badge-popup">
+        <div style="font-weight:bold; font-size:1.2em; margin-bottom:0.5em;">All Badges</div>
+        <div id="all-badges-list"></div>
+        <button class="close-btn" onclick="closeAllBadgesPopup()">Close</button>
+    </div>
+    
+    <div class="text-center mt-4">
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('races') }}" class="btn btn-primary">Back to Races</a>
+            <a href="{{ url_for('profile') }}" class="btn btn-info">View Profile</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login to Race</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function showBadgePopup(icon, title, desc, unlocked_on, reward) {
+    document.getElementById('badge-popup-icon').innerHTML = icon;
+    document.getElementById('badge-popup-title').innerText = title;
+    document.getElementById('badge-popup-desc').innerText = desc;
+    document.getElementById('badge-popup-date').innerText = unlocked_on ? "Unlocked: " + unlocked_on : "";
+    document.getElementById('badge-popup-reward').innerText = reward ? ("Reward: +" + reward + " {{ currency_name }}") : "";
+    document.getElementById('badge-popup').style.display = 'block';
+}
+
+function closeBadgePopup() {
+    document.getElementById('badge-popup').style.display = 'none';
+}
+
+function showAllBadgesPopup(achievements) {
+    var container = document.getElementById('all-badges-list');
+    container.innerHTML = '';
+    achievements.forEach(function(ach) {
+        var row = document.createElement('div');
+        row.className = 'popup-badge-row';
+        row.innerHTML =
+            '<span class="popup-badge-icon" title="' + ach.name + '">' + ach.icon + '</span>' +
+            '<span class="popup-badge-title">' + ach.name + '</span><br>' +
+            '<span class="popup-badge-desc">' + ach.description + '</span><br>' +
+            (ach.unlocked_on ? '<span class="popup-badge-date">Unlocked: ' + ach.unlocked_on + '</span><br>' : '') +
+            (ach.reward ? '<span class="popup-badge-reward">Reward: +' + ach.reward + ' {{ currency_name }}</span>' : '');
+        container.appendChild(row);
+    });
+    document.getElementById('all-badges-popup').style.display = 'block';
+}
+
+function closeAllBadgesPopup() {
+    document.getElementById('all-badges-popup').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    var badgePopup = document.getElementById('badge-popup');
+    var allBadgesPopup = document.getElementById('all-badges-popup');
+    if (event.target == badgePopup) {
+        badgePopup.style.display = "none";
+    }
+    if (event.target == allBadgesPopup) {
+        allBadgesPopup.style.display = "none";
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }} - {{ app_tagline }}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --racecoin-primary: #2c5530;
+            --racecoin-secondary: #4a7c59;
+            --racecoin-accent: #ffd700;
+            --racecoin-success: #28a745;
+            --racecoin-danger: #dc3545;
+            --racecoin-light: #f8f9fa;
+            --racecoin-dark: #1a3a1f;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--racecoin-light) 0%, #e8f5e8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--racecoin-accent) !important;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--racecoin-primary) 0%, var(--racecoin-secondary) 100%) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--racecoin-accent) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--racecoin-primary) 0%, var(--racecoin-secondary) 100%);
+            border: none;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(44, 85, 48, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--racecoin-secondary) 0%, var(--racecoin-primary) 100%);
+            box-shadow: 0 4px 12px rgba(44, 85, 48, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .racecoin-badge {
+            background: linear-gradient(135deg, var(--racecoin-accent) 0%, #ffed4a 100%);
+            color: var(--racecoin-dark);
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .footer {
+            background: var(--racecoin-dark);
+            color: rgba(255,255,255,0.8);
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .horse-icon {
+            color: var(--racecoin-accent);
+            margin-right: 0.5rem;
+        }
+
+        .achievement-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--racecoin-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .racecoin-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px var(--racecoin-accent); }
+            to { text-shadow: 0 0 15px var(--racecoin-accent), 0 0 25px var(--racecoin-accent); }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand racecoin-glow" href="{{ url_for('races') if session.get('user_id') else url_for('index') }}">
+                <i class="fas fa-horse-head horse-icon"></i>{{ app_name }}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('races') }}">
+                                <i class="fas fa-flag-checkered me-1"></i>Races
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}">
+                                <i class="fas fa-user me-1"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('leaderboard') }}">
+                                <i class="fas fa-trophy me-1"></i>Leaderboard
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <span class="racecoin-badge me-3">
+                                <i class="fas fa-coins me-1"></i>{{ user_coins or 0 }} {{ currency_name }}
+                            </span>
+                        </li>
+                        {% if session.get('is_admin') %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog me-1"></i>Admin
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('api_config') }}">
+                                        <i class="fas fa-server me-1"></i>API Configuration
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('refresh_races_manual') }}">
+                                        <i class="fas fa-sync me-1"></i>Refresh Races
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('test_api_detailed') }}">
+                                        <i class="fas fa-vial me-1"></i>Test API
+                                    </a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-horse-head horse-icon"></i>{{ app_name }}</h5>
+                    <p class="mb-0">{{ app_description }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Game Features</h6>
+                    <p class="mb-0">
+                        <small>
+                            Virtual Racing • Real-time Odds • Achievements<br>
+                            Leaderboards • Daily Bonuses • XP System
+                        </small>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Version {{ app_version }}</h6>
+                    <p class="mb-0">
+                        <small>
+                            Made by {{ app_author }}<br>
+                            © 2025 All Rights Reserved
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

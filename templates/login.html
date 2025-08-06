@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Login - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(44,85,48,0.1) 0%, rgba(74,124,89,0.1) 100%);
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-title {
+        font-family: var(--racecoin-font);
+        font-size: 3.2rem;
+        background: linear-gradient(135deg, var(--racecoin-accent), #ffed4a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1.5px;
+        text-align: center;
+    }
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    /* Animated background elements */
+    .bg-horse {
+        position: absolute;
+        font-size: 3rem;
+        opacity: 0.1;
+        animation: gallop 12s linear infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes gallop {
+        0% { transform: translateX(-100px) translateY(0); }
+        50% { transform: translateX(50vw) translateY(-20px); }
+        100% { transform: translateX(calc(100vw + 100px)) translateY(0); }
+    }
+    
+    .bg-confetti {
+        position: absolute;
+        font-size: 1.5rem;
+        opacity: 0.2;
+        animation: float 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(180deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .main-title { font-size: 2.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <!-- Animated background elements -->
+    <span class="bg-horse" style="top: 20%; animation-delay: 0s;">🐎</span>
+    <span class="bg-horse" style="top: 60%; animation-delay: 3s;">🏇</span>
+    <span class="bg-confetti" style="left: 10%; top: 15%; animation-delay: 1s;">🎉</span>
+    <span class="bg-confetti" style="left: 85%; top: 25%; animation-delay: 4s;">🎊</span>
+    <span class="bg-confetti" style="left: 70%; top: 70%; animation-delay: 6s;">🎉</span>
+    <span class="bg-confetti" style="left: 20%; top: 80%; animation-delay: 2s;">🎊</span>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="text-center mb-4">
+                    <h1 class="main-title racecoin-glow">{{ app_name }}</h1>
+                    <p class="lead text-muted">{{ app_tagline }}</p>
+                </div>
+                
+                <div class="card login-card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h3><i class="fas fa-sign-in-alt me-2"></i>Login to Your Account</h3>
+                            <p class="text-muted">Continue your racing adventure</p>
+                        </div>
+                        
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-warning">
+                                    {{ messages[0] }}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Username
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="username" name="username" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Password
+                                </label>
+                                <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-horse-head me-2"></i>Start Racing
+                            </button>
+                        </form>
+                        
+                        <div class="text-center">
+                            <p class="mb-0">New to {{ app_name }}? 
+                                <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold">
+                                    Create Account
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-star me-2"></i>Why Race with {{ app_name }}?
+                </h4>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-horse feature-icon text-primary"></i>
+                        <h6>Realistic Virtual Racing</h6>
+                        <small class="text-muted">
+                            Experience authentic UK racecourses with realistic odds and horse form
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-coins feature-icon text-warning"></i>
+                        <h6>Earn {{ currency_name }}</h6>
+                        <small class="text-muted">
+                            Win virtual currency, get daily bonuses, and build your bankroll
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-trophy feature-icon text-success"></i>
+                        <h6>Achievements System</h6>
+                        <small class="text-muted">
+                            Unlock badges, earn XP, and climb through ranks from Rookie to Legend
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-users feature-icon text-info"></i>
+                        <h6>Global Competition</h6>
+                        <small class="text-muted">
+                            Compete with players worldwide on dynamic leaderboards
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

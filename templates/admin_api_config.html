@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Configuration - Virtual Horse Betting</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .config-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .status-good { color: #28a745; font-weight: bold; }
+        .status-bad { color: #dc3545; font-weight: bold; }
+        .api-info { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .betfair-section { border: 2px solid #e74c3c; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .virtual-section { border: 2px solid #2ecc71; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .credentials-warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="config-container">
+            <h1 class="text-center mb-4">🔧 API Configuration</h1>
+            
+            <!-- Status Display -->
+            <div class="api-info">
+                <h4>📊 Current Status</h4>
+                <p class="{% if 'success' in api_status or '✅' in api_status %}status-good{% else %}status-bad{% endif %}">
+                    {{ api_status }}
+                </p>
+                {% if provider_info %}
+                <p><small>{{ provider_info }}</small></p>
+                {% endif %}
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-info">
+                        {% for message in messages %}
+                            <div>{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <!-- Betfair Exchange API Section -->
+                <div class="betfair-section">
+                    <h3>🏇 Betfair Exchange API</h3>
+                    <div class="credentials-warning">
+                        <strong>⚠️ Important:</strong> You need a Betfair developer account and App Key to use this API.
+                        <br><small>Visit <a href="https://developer.betfair.com/" target="_blank">Betfair Developer Portal</a> to get your credentials.</small>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="use_betfair" name="use_betfair" {% if use_betfair %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="use_betfair">
+                            Enable Betfair Exchange API
+                        </label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">App Key</label>
+                            <input type="text" class="form-control" name="betfair_app_key" 
+                                   value="{{ betfair_app_key }}" placeholder="Your Betfair App Key">
+                            <small class="text-muted">Get from Betfair Developer Portal</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="betfair_username" 
+                                   value="{{ betfair_username }}" placeholder="Your Betfair Username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="betfair_password" 
+                               placeholder="{% if betfair_password == '[HIDDEN]' %}Password is saved{% else %}Your Betfair Password{% endif %}">
+                        {% if betfair_password == '[HIDDEN]' %}
+                        <small class="text-success">✓ Password saved (hidden for security)</small>
+                        {% endif %}
+                    </div>
+
+                    {% if betfair_status %}
+                    <div class="alert {% if '✅' in betfair_status %}alert-success{% else %}alert-warning{% endif %}">
+                        <strong>Betfair Status:</strong> {{ betfair_status }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Virtual Racing Section -->
+                <div class="virtual-section">
+                    <h3>🎮 Virtual Racing System</h3>
+                    <p>Fallback system with realistic race simulation. No external dependencies required.</p>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="use_virtual" name="use_virtual" {% if use_virtual %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="use_virtual">
+                            Enable Virtual Racing (Recommended as fallback)
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Racing Mode</label>
+                        <select class="form-select" name="racing_mode">
+                            <option value="enhanced" {% if racing_mode == 'enhanced' %}selected{% endif %}>
+                                Enhanced - Realistic UK racecourses with detailed horse data
+                            </option>
+                            <option value="demo" {% if racing_mode == 'demo' %}selected{% endif %}>
+                                Demo - Simple realistic race generation
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg me-3">💾 Save Configuration</button>
+                    <a href="/admin/test-api" class="btn btn-info btn-lg me-3">🧪 Test API</a>
+                    <a href="/races" class="btn btn-success btn-lg">🏇 View Races</a>
+                </div>
+            </form>
+
+            <!-- Help Section -->
+            <div class="mt-5">
+                <h4>📖 Setup Guide</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>🏇 Betfair Exchange API</h5>
+                        <ol>
+                            <li>Create account at <a href="https://developer.betfair.com/" target="_blank">developer.betfair.com</a></li>
+                            <li>Get your App Key from the developer portal</li>
+                            <li>Use your regular Betfair username/password</li>
+                            <li>Enable the API and test connection</li>
+                        </ol>
+                        <p><strong>Pro:</strong> Real betting exchange data<br>
+                        <strong>Con:</strong> Requires Betfair account</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>🎮 Virtual Racing</h5>
+                        <ul>
+                            <li>No API key required</li>
+                            <li>Realistic UK racecourse simulation</li>
+                            <li>Professional horse and jockey names</li>
+                            <li>Instant availability</li>
+                        </ul>
+                        <p><strong>Pro:</strong> Always available, no limits<br>
+                        <strong>Con:</strong> Simulated data only</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

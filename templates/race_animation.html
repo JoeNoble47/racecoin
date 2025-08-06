@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Animation - {{ app_name }} Race {{ race.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #1b3a1a 0%, #2e5d2e 100%);
+            margin: 0; 
+            padding: 0; 
+            color: #e0f2e9;
+        }
+        
+        .race-header {
+            text-align: center;
+            background: rgba(34, 56, 34, 0.9);
+            padding: 1rem;
+            box-shadow: 0 4px 16px rgba(60,60,60,0.2);
+        }
+        
+        .race-title { 
+            font-size: 2.5rem; 
+            font-weight: bold;
+            color: #ffe066;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+        
+        #race-track {
+            position: relative;
+            width: 96vw;
+            max-width: 1200px;
+            height: 70vh;
+            min-height: 320px;
+            margin: 2rem auto;
+            background: #77b255;
+            border: 3px solid #444;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(60,60,60,0.15);
+        }
+        #finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #fff, #fff 12px, #ffe066 12px, #ffe066 24px
+            );
+            z-index: 5;
+            border-radius: 3px;
+            box-shadow: 0 0 6px 2px rgba(255, 224, 102, 0.5);
+        }
+        .lane {
+            position: relative;
+            width: 100%;
+            height: calc(100% / {{ race.horses|length }});
+            border-bottom: 2px dashed #fff;
+            display: flex;
+            align-items: center;
+        }
+        .lane:last-child { border-bottom: none; }
+        .horse-label {
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.85);
+            color: #222;
+            font-weight: bold;
+            font-size: 1.3vw;
+            min-width: 90px;
+            max-width: 22vw;
+            padding: 0.6vw 1.2vw;
+            border-radius: 8px;
+            z-index: 2;
+            box-shadow: 1px 2px 6px rgba(0,0,0,0.06);
+            user-select: none;
+            pointer-events: none;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .horse {
+            position: absolute;
+            left: 120px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4vw;
+            min-width: 60px;
+            min-height: 50px;
+            z-index: 3;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            transition: filter 0.2s, box-shadow 0.2s;
+        }
+        .horse.winner {
+            filter: drop-shadow(0 0 30px #FFD700) drop-shadow(0 0 60px #FFA500) brightness(1.6) saturate(1.8);
+            box-shadow: 
+                0 0 40px 20px rgba(255, 215, 0, 0.8),
+                0 0 80px 40px rgba(255, 165, 0, 0.6),
+                0 0 120px 60px rgba(255, 215, 0, 0.4),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+            z-index: 10;
+            position: relative;
+            animation: winner-pulse 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes winner-pulse {
+            0% { 
+                transform: translateY(-50%) scale(1);
+                filter: drop-shadow(0 0 30px #FFD700) drop-shadow(0 0 60px #FFA500) brightness(1.6) saturate(1.8);
+            }
+            100% { 
+                transform: translateY(-50%) scale(1.1);
+                filter: drop-shadow(0 0 50px #FFD700) drop-shadow(0 0 100px #FFA500) brightness(1.8) saturate(2.0);
+            }
+        }
+        .horse-sprite {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: horse-bounce 0.6s ease-in-out infinite alternate;
+            font-size: 40px;
+        }
+        @keyframes horse-bounce {
+            0% { transform: scaleX(-1) translateY(0px) rotate(-2deg); }
+            100% { transform: scaleX(-1) translateY(-4px) rotate(2deg); }
+        }
+        @media (max-width: 900px) {
+            .race-title { font-size: 4vw; }
+            #race-track { height: 60vw; }
+            .horse { font-size: 7vw; }
+            .horse-label { font-size: 2.5vw; min-width: 60px; }
+            .horse-sprite { width: 48px; height: 48px; }
+            
+            /* Reduce winner effects intensity on mobile for better performance */
+            .horse.winner {
+                filter: drop-shadow(0 0 20px #FFD700) brightness(1.4) saturate(1.6);
+                box-shadow: 
+                    0 0 30px 15px rgba(255, 215, 0, 0.7),
+                    0 0 60px 30px rgba(255, 165, 0, 0.5),
+                    0 0 90px 45px rgba(255, 215, 0, 0.3);
+            }
+            
+            .winner-modal .modal-title { font-size: 1.5rem; }
+            .winner-modal .winner-name { font-size: 2rem; }
+            .winner-modal .trophy { font-size: 3rem; }
+        }
+        @media (max-width: 600px) {
+            #race-track { height: 80vw; }
+            .horse { font-size: 12vw; }
+            .horse-label { font-size: 4vw; min-width: 40px; }
+            .horse-sprite { width: 32px; height: 32px; }
+            
+            /* Further optimize for small screens */
+            .horse.winner {
+                filter: drop-shadow(0 0 15px #FFD700) brightness(1.3) saturate(1.4);
+                box-shadow: 
+                    0 0 20px 10px rgba(255, 215, 0, 0.6),
+                    0 0 40px 20px rgba(255, 165, 0, 0.4);
+                animation: winner-pulse-mobile 2s ease-in-out infinite alternate;
+            }
+            
+            @keyframes winner-pulse-mobile {
+                0% { 
+                    transform: translateY(-50%) scale(1);
+                    filter: drop-shadow(0 0 15px #FFD700) brightness(1.3) saturate(1.4);
+                }
+                100% { 
+                    transform: translateY(-50%) scale(1.05);
+                    filter: drop-shadow(0 0 25px #FFD700) brightness(1.5) saturate(1.6);
+                }
+            }
+            
+            .winner-modal .modal-dialog { margin: 0.5rem; }
+            .winner-modal .modal-content { border-radius: 15px; }
+            .winner-modal .modal-title { font-size: 1.2rem; }
+            .winner-modal .modal-body { padding: 1rem; font-size: 1rem; }
+            .winner-modal .winner-name { font-size: 1.5rem; margin: 0.5rem 0; }
+            .winner-modal .trophy { font-size: 2.5rem; margin: 0.5rem; }
+            .winner-modal .btn { padding: 0.5rem 1rem; margin: 0.25rem; }
+        }
+        
+        /* Winner Modal Styling */
+        .winner-modal .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            color: white;
+        }
+        .winner-modal .modal-header {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            border-bottom: 3px solid #FFD700;
+            text-align: center;
+            border-radius: 17px 17px 0 0;
+        }
+        .winner-modal .modal-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 0 auto;
+        }
+        .winner-modal .modal-body {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1));
+        }
+        .winner-modal .winner-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin: 1rem 0;
+            animation: winner-text-glow 2s ease-in-out infinite alternate;
+        }
+        .winner-modal .trophy {
+            font-size: 4rem;
+            animation: trophy-spin 3s ease-in-out infinite;
+            margin: 1rem;
+        }
+        @keyframes winner-text-glow {
+            0% { text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px #FFD700; }
+            100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 40px #FFD700, 0 0 60px #FFA500; }
+        }
+        @keyframes trophy-spin {
+            0%, 100% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(360deg) scale(1.1); }
+        }
+        .winner-modal .modal-footer {
+            background: rgba(255,215,0,0.1);
+            border-top: 2px solid #FFD700;
+            border-radius: 0 0 17px 17px;
+        }
+    </style>
+</head>
+<body>
+    <div class="race-header">
+        <h1 class="race-title">🏇 {{ app_name }} Race {{ race.id }} 🏇</h1>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Live Race Animation</p>
+    </div>
+    <div id="race-track">
+        <div id="finish-line"></div>
+        {% for horse in race.horses %}
+        <div class="lane" id="lane-{{ loop.index0 }}">
+            <div class="horse-label" id="label-{{ loop.index0 }}">{{ horse }}</div>
+            <div class="horse" id="horse-{{ loop.index0 }}">
+                <div class="horse-sprite" id="horse-sprite-{{ loop.index0 }}"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <audio id="gallopSound" src="/static/gallop.wav" preload="auto" loop></audio>
+
+    <div class="modal fade winner-modal" id="winnerModal" tabindex="-1" aria-labelledby="winnerModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="winnerModalLabel">🏁 {{ app_name }} RACE COMPLETE! 🏁</h5>
+          </div>
+          <div class="modal-body" id="winner-message">
+            <div class="trophy">🏆</div>
+            <div>And the winner is...</div>
+            <div class="winner-name" id="winner-name-display"></div>
+            <div>🎉 Congratulations! 🎉</div>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <a href="{{ url_for('place_bet', race_id=race.id) }}" class="btn btn-warning btn-lg mx-2">🎲 Bet Again</a>
+            <a href="{{ url_for('results') }}" class="btn btn-success btn-lg mx-2">📊 View Results</a>
+            <a href="{{ url_for('races') }}" class="btn btn-primary btn-lg mx-2">🏇 More Races</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const horses = {{ race.horses|tojson }};
+        const horseElems = horses.map((_, i) => document.getElementById('horse-' + i));
+        const spriteElems = horses.map((_, i) => document.getElementById('horse-sprite-' + i));
+        const raceTrack = document.getElementById('race-track');
+        const gallopSound = document.getElementById('gallopSound');
+        gallopSound.volume = 0.18;
+        function playGallop() { gallopSound.currentTime = 0; gallopSound.play(); }
+        function stopGallop() { gallopSound.pause(); gallopSound.currentTime = 0; }
+
+        // Assign horse emojis and colors to each horse
+        const horseEmojis = ['🏇🏻', '🏇🏼', '🏇🏽', '🏇🏾', '🏇🏿', '🐎', '🐴', '🦄', '🏇', '🏇🏻'];
+        const horseColors = ['#8B4513', '#654321', '#FFFFFF', '#F5DEB3', '#000000', '#A0522D', '#D2691E', '#CD853F', '#DEB887', '#FFFF00'];
+        
+        spriteElems.forEach((sprite, i) => {
+            const emoji = horseEmojis[i % horseEmojis.length];
+            const color = horseColors[i % horseColors.length];
+            sprite.innerHTML = emoji;
+            sprite.style.fontSize = '40px';
+            sprite.style.display = 'flex';
+            sprite.style.alignItems = 'center';
+            sprite.style.justifyContent = 'center';
+            sprite.style.filter = `hue-rotate(${i * 36}deg)`;
+            sprite.style.textShadow = `0 0 10px ${color}`;
+        });
+
+        function getFinishLine() {
+            let trackWidth = raceTrack.clientWidth;
+            let horseWidth = horseElems[0].clientWidth;
+            return trackWidth - horseWidth;
+        }
+        let finishLine = getFinishLine();
+        window.addEventListener('resize', () => { finishLine = getFinishLine(); });
+        let positions = new Array(horses.length).fill(120);
+
+        // Use the backend's winner_index directly, don't try to calculate it from the name!
+        const winnerIndex = {{ winner_index }};
+
+        function raceStep() {
+            if (positions[winnerIndex] < finishLine) {
+                positions[winnerIndex] += Math.floor(Math.random() * 15) + 5;
+                if (positions[winnerIndex] > finishLine) {
+                    positions[winnerIndex] = finishLine;
+                }
+                horseElems[winnerIndex].style.left = positions[winnerIndex] + "px";
+            }
+            for (let i = 0; i < horses.length; i++) {
+                if (i === winnerIndex) continue;
+                const maxPos = positions[winnerIndex] - 5;
+                const advance = Math.floor(Math.random() * 15) + 5;
+                if (positions[i] + advance < maxPos) {
+                    positions[i] += advance;
+                } else {
+                    positions[i] = maxPos;
+                }
+                horseElems[i].style.left = positions[i] + "px";
+            }
+            if (positions[winnerIndex] >= finishLine) {
+                showWinner();
+                clearInterval(raceInterval);
+            }
+        }
+        function showWinner() {
+            stopGallop();
+            const winnerHorse = horses[winnerIndex];
+            horseElems[winnerIndex].classList.add("winner");
+            
+            // Update the winner name in the modal
+            document.getElementById('winner-name-display').textContent = winnerHorse;
+            
+            const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
+            winnerModal.show();
+            
+            // Add celebration sound effect (if you want to add this later)
+            // Optional: Add confetti or fireworks animation
+        }
+        horses.forEach((_, i) => { horseElems[i].style.left = "120px"; });
+        playGallop();
+        const raceInterval = setInterval(raceStep, 100);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Races - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .race-list-card {
+        background: rgba(255,255,255,0.97);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+        margin-bottom: 2rem;
+    }
+    .race-header {
+        background: var(--racecoin-accent);
+        color: #1d3557;
+        font-weight: bold;
+        font-size: 1.15rem;
+        border-radius: 18px 18px 0 0;
+        padding: 1rem 1.5rem;
+    }
+    .horse-info-list {
+        margin: 0.7em 0 0.4em 0.5em;
+        padding: 0;
+    }
+    .horse-info-list li {
+        list-style: none;
+        margin-bottom: 0.18em;
+        font-size: 1.01em;
+        padding-left: 0;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .horse-fav {
+        color: #f9c846;
+        font-weight: bold;
+    }
+    .horse-odds {
+        color: #1b3a1a;
+        background: #ffe066;
+        border-radius: 1em;
+        padding: 0.1em 0.7em;
+        margin-left: 0.6em;
+        font-size: 1em;
+        font-weight: bold;
+    }
+    .horse-form, .horse-momentum {
+        margin-left: 0.5em;
+        font-size: 0.98em;
+    }
+    .horse-form { color: #4ea8de; }
+    .horse-momentum { color: #7b2ff2; }
+    @media (max-width: 600px) {
+        .horse-info-list li { font-size: 0.97em; }
+        .horse-form, .horse-momentum { display: none !important; }
+        .horse-odds { margin-left: 0.3em; font-size: 1.08em; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="racecoin-glow">Hello, {{ username }}!</h2>
+        <span class="badge bg-success fs-5">{{ currency_symbol }} {{ coins }}</span>
+    </div>
+
+    <div class="d-flex justify-content-center gap-2 mb-3">
+        <a href="{{ url_for('profile') }}" class="btn btn-info">Profile</a>
+        <a href="{{ url_for('leaderboard') }}" class="btn btn-warning">🏆 Leaderboard</a>
+        <a href="{{ url_for('multi_bet') }}" class="btn btn-warning">Multi Bet (Accumulator)</a>
+    </div>
+
+    <div class="race-list-card shadow mt-4">
+        <div class="race-header">Upcoming Races</div>
+        <ul class="list-group list-group-flush">
+            {% for race in races %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Race {{ race.id }}</strong>
+                        {% if race.is_real_race %}
+                            <span class="badge bg-success ms-2">🏆 REAL RACE</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-2">🎮 Virtual</span>
+                        {% endif %}
+                        {% if race.title and race.title != 'Race ' + race.id|string %}
+                            <div class="text-muted small">{{ race.title }}</div>
+                        {% endif %}
+                        {% if race.start_time %}
+                            <div class="text-muted small">⏰ {{ race.start_time[:16].replace('T', ' ') }}</div>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('place_bet', race_id=race.id) }}" class="btn btn-outline-primary btn-sm">Place Bet</a>
+                </div>
+                {% if race.horses %}
+                    <ul class="horse-info-list">
+                        {% for horse in race.horses %}
+                            <li>
+                                <span {% if horse.is_favourite %}class="horse-fav"{% endif %}>
+                                    {% if horse.is_favourite %}★ {% endif %}
+                                    {{ horse.name }}
+                                </span>
+                                <span class="horse-odds">{{ horse.fractional_odds }}</span>
+                                <span class="horse-form">Form: {{ horse.form }}</span>
+                                <span class="horse-momentum">Momentum: {{ horse.momentum }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+            {% else %}
+            <li class="list-group-item">No races available at the moment.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('results') }}" class="btn btn-info">Check Results</a>
+        <a href="{{ url_for('refresh_races_manual') }}" class="btn btn-success">🔄 Refresh Races</a>
+        <a href="{{ url_for('api_config') }}" class="btn btn-warning">🔧 API Settings</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

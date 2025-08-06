@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Virtual Horse Betting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #1b3a1a 0%, #2e5d2e 100%);
+            color: #e0f2e9;
+            position: relative;
+            touch-action: manipulation;
+        }
+        .center-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .main-title {
+            font-family: 'Luckiest Guy', Arial, sans-serif;
+            font-size: 3.2rem;
+            color: #d4f1c5;
+            text-shadow: 2px 4px 10px rgba(0,0,0,0.5), 0 0 10px #f9c74f;
+            margin-bottom: 0.3rem;
+            letter-spacing: 1.5px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b8d8a7;
+            margin-bottom: 2.5rem;
+            font-family: Arial, sans-serif;
+            font-style: italic;
+        }
+        .auth-form {
+            background: rgba(34, 56, 34, 0.97);
+            padding: 2.2rem 2.5rem;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+            text-align: center;
+            min-width: 320px;
+            max-width: 350px;
+        }
+        .auth-form input[type="text"],
+        .auth-form input[type="password"] {
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 7px;
+            border: 1.5px solid #90be6d;
+            margin-bottom: 1rem;
+            width: 100%;
+            background: #e0f2e9;
+            color: #1b3a1a;
+            resize: none;
+        }
+        .auth-form button {
+            font-size: 1.1rem;
+            background: #f9c74f;
+            color: #1d3557;
+            border: none;
+            border-radius: 7px;
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(60,60,60,0.08);
+            transition: background 0.2s;
+            width: 100%;
+            margin-bottom: 0.7rem;
+        }
+        .auth-form button:hover {
+            background: #f3722c;
+            color: #fff;
+        }
+        .switch-link {
+            color: #f9c74f;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .switch-link:hover {
+            color: #f3722c;
+        }
+        .alert {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Animated horses and confetti */
+        .bg-emoji {
+            position: absolute;
+            font-size: 2.7rem;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: moveHorse 7s linear infinite;
+            will-change: transform;
+        }
+        .bg-emoji2 {
+            position: absolute;
+            font-size: 2.1rem;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: moveHorse2 9s linear infinite;
+            will-change: transform;
+        }
+        .bg-confetti {
+            position: absolute;
+            font-size: 1.8rem;
+            pointer-events: none;
+            opacity: 0.5;
+            animation: floatConfetti 6s linear infinite;
+            will-change: transform;
+        }
+        @keyframes moveHorse {
+            0% { left: -5%; top: 12%; }
+            100% { left: 105%; top: 12%; }
+        }
+        @keyframes moveHorse2 {
+            0% { left: -5%; top: 70%; }
+            100% { left: 105%; top: 70%; }
+        }
+        @keyframes floatConfetti {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @media (max-width: 600px) {
+            .main-title { font-size: 2.1rem; }
+            .auth-form { padding: 1.1rem 0.5rem; min-width: 0; max-width: 98vw;}
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background emojis -->
+    <span class="bg-emoji" style="top:12%; left:-5%; animation-delay:0s;">🐎</span>
+    <span class="bg-emoji" style="top:23%; left:-5%; animation-delay:1.2s;">🏇</span>
+    <span class="bg-emoji2" style="top:70%; left:-5%; animation-delay:0.7s;">🐎</span>
+    <span class="bg-emoji2" style="top:60%; left:-5%; animation-delay:2.2s;">🏇</span>
+    <span class="bg-confetti" style="left:15%; animation-delay:0.3s;">🎉</span>
+    <span class="bg-confetti" style="left:80%; animation-delay:1.8s;">🎊</span>
+    <span class="bg-confetti" style="left:50%; animation-delay:2.5s;">🎉</span>
+    <span class="bg-confetti" style="left:30%; animation-delay:3.1s;">🎊</span>
+
+    <div class="center-content">
+        <div class="main-title">
+            Virtual Horse Betting!<br>
+            <span class="subtitle">by Joe Noble</span>
+        </div>
+        <form method="POST" class="auth-form shadow">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-warning">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div style="font-size:1.25rem; margin-bottom:1.2rem; color:#d4f1c5;">
+                Login to your account
+            </div>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Log In</button>
+            <div>
+                <span style="color:#b8d8a7;">Don't have an account?</span>
+                <a href="{{ url_for('register') }}" class="switch-link">Register</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

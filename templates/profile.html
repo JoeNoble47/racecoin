@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        background: rgba(255,255,255,0.97);
+        padding: 2.2rem 2.5rem;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+        max-width: 480px;
+        margin: 3rem auto;
+        text-align: center;
+    }
+    .avatar {
+        width: 64px; height: 64px;
+        border-radius: 50%;
+        background: #ffe066;
+        color: #1d3557;
+        font-size: 2rem;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(60,60,60,0.08);
+    }
+    .profile-info {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+    .coins-badge, .xp-badge, .rank-badge, .level-badge {
+        font-size: 1.1rem;
+        padding: 0.4em 1em;
+        border-radius: 1em;
+        display: inline-block;
+        margin-bottom: 1.2em;
+        margin-left: 0.5em;
+    }
+    .coins-badge { background: #90be6d; color: #1b3a1a; margin-left: 0; }
+    .xp-badge { background: #4ea8de; color: #fff; }
+    .rank-badge { background: #f9c846; color: #1b3a1a; font-weight: bold; letter-spacing: 1px; }
+    .level-badge { background: #7b2ff2; color: #fff; font-weight: bold; letter-spacing: 1px; }
+    .daily-bonus-msg, .achievement-msg {
+        font-weight: bold;
+        padding: 0.7em 1em;
+        border-radius: 10px;
+        margin-bottom: 1.2em;
+        font-size: 1.08rem;
+        box-shadow: 0 2px 8px rgba(60,60,60,0.06);
+    }
+    .daily-bonus-msg { background: #ffe066; color: #333; }
+    .achievement-msg { background: #6ee7b7; color: #1b3a1a; }
+    .achievements-section {
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .achievements-section h4 {
+        font-size: 1.1em;
+        color: #ffe066;
+        margin-bottom: 0.5em;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    .badge-icon {
+        font-size: 2rem;
+        margin: 0.2em 0.3em;
+        cursor: pointer;
+        transition: transform 0.1s;
+        display: inline-block;
+    }
+    .badge-icon:hover {
+        transform: scale(1.15);
+        filter: brightness(1.2);
+    }
+    .badge-popup {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        background: #233a23;
+        color: #ffe066;
+        border-radius: 14px;
+        box-shadow: 0 4px 32px rgba(60,60,60,0.25);
+        padding: 1.5em 2em;
+        min-width: 220px;
+        max-width: 90vw;
+        text-align: center;
+        font-size: 1.1em;
+    }
+    .badge-popup .close-btn {
+        background: #ffe066;
+        color: #233a23;
+        border: none;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 0.2em 1em;
+        margin-top: 1em;
+        cursor: pointer;
+    }
+    .stats-list {
+        list-style: none;
+        padding: 0;
+        margin: 1.5em 0 1em 0;
+        text-align: left;
+        font-size: 1.08rem;
+    }
+    .stats-list li {
+        margin-bottom: 0.5em;
+        padding-left: 0.5em;
+    }
+    .stat-label {
+        font-weight: bold;
+        color: #ffe066;
+    }
+    .btn-group {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    .btn-group .btn {
+        width: 100%;
+        font-size: 1.1rem;
+    }
+    @media (max-width: 600px) {
+        .profile-container { padding: 1.1rem 0.3rem; max-width: 98vw; }
+        .avatar { width: 48px; height: 48px; font-size: 1.3rem; }
+        .profile-info { font-size: 1rem; }
+        .coins-badge, .xp-badge, .rank-badge, .level-badge { font-size: 1rem; padding: 0.3em 0.6em; }
+        .badge-icon { font-size: 1.3rem; }
+        .badge-popup { padding: 1em 0.5em; min-width: 160px; font-size: 1em; }
+        .stats-list { font-size: 0.97rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-container shadow">
+        <!-- Avatar and Username -->
+        <div class="avatar mb-2">
+            {{ (user.avatar|default(user.username))[:1]|upper }}
+        </div>
+        <div class="profile-info mb-3">
+            <strong>{{ user.username }}</strong>
+        </div>
+
+        <!-- User Badges and Stats -->
+        <div class="mb-2">
+            <span class="coins-badge me-1">
+                🪙 {{ user.coins|default(0) }} {{ currency_name }}
+            </span>
+            <span class="xp-badge me-1">
+                ⭐ {{ user.xp|default(0) }} XP
+            </span>
+            <span class="rank-badge me-1">
+                🏆 {{ user.rank|default("Rookie") }}
+            </span>
+            <span class="level-badge">
+                🎯 Level {{ user.number_rank|default(1) }}
+            </span>
+        </div>
+
+        {% if daily_bonus %}
+        <div class="daily-bonus-msg">
+            🎁 {{ daily_bonus }}
+        </div>
+        {% endif %}
+
+        {% if achievement_msg %}
+        <div class="achievement-msg">
+            🏅 {{ achievement_msg }}
+        </div>
+        {% endif %}
+
+        <div class="achievements-section">
+            <h4>Achievements</h4>
+            <div>
+                {% for badge in achievements %}
+                    <span class="badge-icon" 
+                          title="{{ badge.name }}"
+                          onclick="showBadgePopup('{{ badge.name|replace("'", "\\'") }}', '{{ badge.description|replace("'", "\\'") }}')">
+                        {{ badge.icon|safe }}
+                    </span>
+                {% else %}
+                    <span style="color:#b8d8a7;">No achievements yet!</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="badge-popup" class="badge-popup">
+            <div id="badge-popup-title" style="font-weight:bold;font-size:1.2em;"></div>
+            <div id="badge-popup-desc" style="margin-top:0.6em;"></div>
+            <button class="close-btn mt-2" onclick="hideBadgePopup()">Close</button>
+        </div>
+
+        <ul class="stats-list">
+            <li><span class="stat-label">Races Entered:</span> {{ user.total_bets|default(0) }}</li>
+            <li><span class="stat-label">Races Won:</span> {{ user.wins|default(0) }}</li>
+            <li><span class="stat-label">Biggest Win:</span> {{ user.biggest_single_win|default(0) }} {{ currency_symbol }}</li>
+            <li><span class="stat-label">Current Streak:</span> {{ user.current_streak|default(0) }}</li>
+            <li><span class="stat-label">Login Streak:</span> {{ user.login_streak|default(0) }} days</li>
+        </ul>
+
+        <div class="btn-group">
+            <a href="/races" class="btn btn-success">Back to Races</a>
+            <a href="/leaderboard" class="btn btn-warning">Leaderboard</a>
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</div>
+<script>
+    function showBadgePopup(title, desc) {
+        document.getElementById('badge-popup-title').innerText = title;
+        document.getElementById('badge-popup-desc').innerText = desc;
+        document.getElementById('badge-popup').style.display = 'block';
+    }
+    function hideBadgePopup() {
+        document.getElementById('badge-popup').style.display = 'none';
+    }
+    window.onclick = function(event) {
+        var popup = document.getElementById('badge-popup');
+        if (event.target == popup) {
+            hideBadgePopup();
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% block title %}Place Bet - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .betting-container {
+        background: rgba(255,255,255,0.97);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+        padding: 2.5rem;
+        margin: 2rem auto;
+        max-width: 700px;
+    }
+    .horse-grid .btn {
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 8px 5px;
+        font-size: 1rem;
+        height: 100%;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        white-space: normal;
+        word-break: break-word;
+        border: 2px solid transparent;
+        box-shadow: 0 2px 8px rgba(60,60,60,0.10);
+        transition: background 0.2s, color 0.2s, transform 0.1s, border-color 0.2s;
+    }
+    .horse-grid .col {
+        margin-bottom: 10px;
+    }
+    .horse-btn {
+        background: linear-gradient(135deg, #e3e3e3 0%, #bdbdbd 100%);
+        color: #1b3a1a;
+        border: 2px solid #bdbdbd;
+    }
+    .horse-btn.favourite {
+        background: linear-gradient(135deg, #fffbe6 0%, var(--racecoin-accent) 60%, #eab308 100%);
+        color: #7c5b07;
+        border: 2px solid #eab308;
+        box-shadow: 0 2px 16px rgba(238, 179, 8, 0.3);
+    }
+    .btn-check:checked + .horse-btn,
+    .horse-btn:active {
+        background: linear-gradient(135deg, #43aa8b 0%, var(--racecoin-accent) 100%);
+        color: #fff;
+        border-color: #43aa8b;
+        transform: scale(1.05);
+    }
+    .btn-check:checked + .horse-btn.favourite,
+    .horse-btn.favourite:active {
+        background: linear-gradient(135deg, var(--racecoin-accent) 0%, #eab308 80%);
+        color: #fff;
+        border-color: #eab308;
+        box-shadow: 0 4px 24px rgba(238, 179, 8, 0.5);
+        transform: scale(1.05);
+    }
+    .horse-btn:hover {
+        background: linear-gradient(135deg, #d3d3d3 0%, #bdbdbd 100%);
+        color: #2d6a4f;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(60,60,60,0.13);
+    }
+    .horse-btn.favourite:hover {
+        background: linear-gradient(135deg, var(--racecoin-accent) 0%, #eab308 100%);
+        color: #fff;
+        box-shadow: 0 4px 24px rgba(238, 179, 8, 0.5);
+    }
+    .horse-meta {
+        font-size: 0.93em;
+        color: #2d6a4f;
+        background: rgba(255,255,255,0.17);
+        border-radius: 6px;
+        margin-top: 3px;
+        padding: 1.5px 5px 0 5px;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+    }
+    .favourite-note {
+        font-size: 0.96em;
+        color: var(--racecoin-accent);
+        text-align: left;
+        margin-top: 0.5em;
+        margin-bottom: 1.2em;
+        opacity: 0.75;
+        font-style: italic;
+    }
+    .clear-selection-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+    .clear-selection-btn {
+        font-weight: 500;
+        border-radius: 7px;
+        border: 1.5px solid #dc3545;
+        background: #dc3545;
+        color: #fff;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+        padding: 0.35em 1em;
+        font-size: 0.98em;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        box-shadow: 0 2px 8px rgba(220,53,69,0.10);
+    }
+    .clear-selection-btn:hover,
+    .clear-selection-btn:focus {
+        background: #c82333;
+        color: #fff;
+        border-color: #a71d2a;
+    }
+    .clear-selection-btn:active {
+        background: #a71d2a;
+        color: #fff;
+        border-color: #721c24;
+    }
+    .forecast-section {
+        background: linear-gradient(120deg, var(--racecoin-accent) 0%, #f9c74f 60%, #fffbe6 100%);
+        border-radius: 14px;
+        padding: 1.1rem;
+        margin-bottom: 1.8rem;
+        border: 2.5px solid #f3722c;
+        box-shadow: 0 6px 32px rgba(249, 199, 79, 0.13), 0 1.5px 0 #f3722c inset;
+        position: relative;
+    }
+    .forecast-banner {
+        background: #f3722c;
+        color: #fff;
+        font-size: 1.14rem;
+        font-weight: bold;
+        padding: 7px 26px 7px 20px;
+        border-radius: 14px 14px 20px 20px;
+        box-shadow: 0 3px 12px rgba(60,60,60,0.13);
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        margin-bottom: 0.7em;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .forecast-banner .emoji {
+        font-size: 1.35em;
+        margin-right: 0.15em;
+    }
+    .forecast-section label.form-label {
+        color: #f3722c;
+        font-size: 1.05rem;
+        margin-bottom: 0.6rem;
+        font-weight: bold;
+    }
+    .forecast-section .form-select,
+    .forecast-section .form-control {
+        background: #fffbe6;
+        border: 1.5px solid #f9c74f;
+        color: #1b3a1a;
+        font-weight: bold;
+    }
+    .forecast-section .form-select:focus,
+    .forecast-section .form-control:focus {
+        border-color: #f3722c;
+        box-shadow: 0 0 0 0.15rem rgba(243, 114, 44, 0.25);
+    }
+    .forecast-section small.text-muted {
+        color: #8d6e1a !important;
+        font-size: 0.97em;
+        margin-top: 0.7em;
+        display: block;
+    }
+    .forecast-section .forecast-info {
+        color: #a05a00;
+        background: #fffbe6;
+        border-radius: 8px;
+        padding: 0.7em 1em;
+        margin-bottom: 0.7em;
+        margin-top: 0.5em;
+        font-size: 1.01em;
+        font-weight: 500;
+        box-shadow: 0 1px 6px rgba(249, 199, 79, 0.2);
+        text-align: center;
+    }
+    .coin-balance {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3em;
+    }
+    .coin-emoji {
+        font-size: 1.35em;
+        vertical-align: middle;
+        filter: drop-shadow(0 1px 1px rgba(136, 136, 136, 0.13));
+    }
+    .coins-amount {
+        font-weight: bold;
+        font-size: 1.08em;
+        letter-spacing: 0.5px;
+    }
+    @media (max-width: 650px) {
+        .betting-container {
+            max-width: 99vw;
+            padding: 1rem 0.5rem;
+            margin: 0.7rem 0.1rem;
+        }
+        .btn, .btn-primary, .btn-secondary {
+            font-size: 1.01em;
+            min-height: 2.2em;
+            padding: 0.7em 1.2em;
+        }
+        .horse-grid .btn {
+            font-size: 1.08em;
+            min-height: 48px;
+            padding: 10px 2px 6px 2px;
+        }
+        .row-cols-2 > .col, .row-cols-md-5 > .col {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        .horse-grid {
+            row-gap: 0.2rem;
+        }
+        .forecast-section {
+            padding: 0.7rem 0.2rem;
+            margin-bottom: 1.1rem;
+        }
+        .forecast-banner {
+            font-size: 1.01rem;
+            padding: 6px 10px;
+        }
+        .forecast-section .forecast-info { 
+            font-size: 0.95em; 
+            padding: 0.45em 0.3em;
+        }
+        .clear-selection-wrapper { 
+            flex-direction: column; 
+            align-items: flex-start; 
+            gap: 0.2em; 
+        }
+        .favourite-note { margin-top: 0.7em; }
+    }
+    @media (max-width: 480px) {
+        .betting-container { padding: 0.5rem 0.25rem; }
+        .btn, .btn-primary, .btn-secondary { font-size: 0.97em; }
+        .forecast-section { padding: 0.4rem 0.15rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="racecoin-glow">🏇 Place Your Bet 🏇</h2>
+        <p class="text-muted">Race {{ race.id }} - Choose your winning strategy</p>
+    </div>
+    
+    <div class="betting-container">
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+            <a href="{{ url_for('profile') }}" class="btn btn-info">Profile</a>
+            <a href="{{ url_for('leaderboard') }}" class="btn btn-warning">🏆 Leaderboard</a>
+            <a href="{{ url_for('races') }}" class="btn btn-secondary">Back to Races</a>
+        </div>
+        
+        <p class="text-center coin-balance mb-4">
+            <strong>{{ currency_name }} available:</strong>
+            <span class="coin-emoji" aria-label="{{ currency_name }}" title="{{ currency_name }}">💰</span>
+            <span class="coins-amount">{{ coins }} {{ currency_symbol }}</span>
+        </p>
+        
+        {% if error_message %}
+        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            {{ error_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="mb-3">
+            <!-- Standard WIN bet -->
+            <div class="mb-3">
+                <label class="form-label">Select a horse (Win bet):</label>
+                <div class="row row-cols-1 row-cols-md-5 g-2 horse-grid" id="horse-grid">
+                    {% for horse in race.horses %}
+                    <div class="col">
+                        <input type="radio" class="btn-check" name="horse" id="horse{{ loop.index }}" value="{{ horse.name }}" autocomplete="off">
+                        <label class="btn horse-btn w-100{% if horse.is_favourite %} favourite{% endif %}" for="horse{{ loop.index }}">
+                            🐎 {{ horse.name }}
+                            <span class="horse-meta">
+                                Odds: {{ horse.fractional_odds }}<br>
+                                Momentum: {{ horse.momentum }}
+                            </span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="clear-selection-wrapper">
+                    <div class="favourite-note">Favourites are highlighted in {{ app_name }} gold.</div>
+                    <button type="button" class="clear-selection-btn" id="clear-horse-selection">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                        Clear Selection
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="amount" class="form-label">Bet amount (Win bet):</label>
+                <input type="number" class="form-control" id="amount" name="amount" min="1" max="{{ coins }}">
+            </div>
+            <!-- Exciting Forecast bet section with fixed banner -->
+            <div class="forecast-section mt-4">
+                <div class="forecast-banner">
+                    <span class="emoji">🏇</span>
+                    Forecast Bet
+                    <span class="emoji">🥇🥈</span>
+                </div>
+                <div class="forecast-info">
+                    <strong>What could you win?</strong><br>
+                    If you pick the 1st and 2nd horses in the correct order, your payout is:<br>
+                    <span style="color:#f3722c;">Stake × Odds of 1st × Odds of 2nd × 0.8</span><br>
+                    (for example, a 10 {{ currency_symbol }} bet at odds 4/1 and 5/1 pays 10 × 5 × 6 × 0.8 = 240 {{ currency_symbol }})
+                </div>
+                <label class="form-label mt-3">Pick 1st and 2nd in order:</label>
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <select class="form-select" name="forecast_first" id="forecast_first">
+                            <option value="">1st Place (optional)</option>
+                            {% for horse in race.horses %}
+                            <option value="{{ horse.name }}">{{ horse.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <select class="form-select" name="forecast_second" id="forecast_second">
+                            <option value="">2nd Place (optional)</option>
+                            {% for horse in race.horses %}
+                            <option value="{{ horse.name }}">{{ horse.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <input type="number" class="form-control" name="forecast_amount" min="1" max="{{ coins }}" placeholder="Forecast Bet (optional)">
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <strong>Note:</strong> You can only place a <u>win bet OR a forecast bet</u> on a single race.
+                </small>
+            </div>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary mb-2">Place Bet</button>
+                <a href="{{ url_for('races') }}" class="btn btn-secondary mb-2">Back to Races</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Clear Selection button for win bet
+    document.getElementById('clear-horse-selection').addEventListener('click', function() {
+        document.querySelectorAll('input[name="horse"]').forEach(function(radio) {
+            radio.checked = false;
+        });
+        // Re-enable forecast fields if needed
+        disableForecast(false);
+    });
+
+    // Disable/enable logic for win/forecast
+    const horseRadios = document.querySelectorAll('input[name="horse"]');
+    const amountInput = document.getElementById('amount');
+    const forecastFirst = document.getElementById('forecast_first');
+    const forecastSecond = document.getElementById('forecast_second');
+    const forecastAmount = document.querySelector('input[name="forecast_amount"]');
+
+    function disableForecast(disabled) {
+        forecastFirst.disabled = disabled;
+        forecastSecond.disabled = disabled;
+        forecastAmount.disabled = disabled;
+    }
+    function disableWin(disabled) {
+        horseRadios.forEach(r => r.disabled = disabled);
+        amountInput.disabled = disabled;
+    }
+
+    horseRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked && amountInput.value > 0) {
+                disableForecast(true);
+            } else {
+                disableForecast(false);
+            }
+        });
+    });
+    amountInput.addEventListener('input', function() {
+        if (this.value > 0 && Array.from(horseRadios).some(r => r.checked)) {
+            disableForecast(true);
+        } else {
+            disableForecast(false);
+        }
+    });
+
+    [forecastFirst, forecastSecond, forecastAmount].forEach(el => {
+        el.addEventListener('input', function() {
+            if (
+                forecastFirst.value &&
+                forecastSecond.value &&
+                forecastFirst.value !== forecastSecond.value &&
+                forecastAmount.value > 0
+            ) {
+                disableWin(true);
+            } else {
+                disableWin(false);
+            }
+        });
+    });
+
+    // Dynamic forecast dropdowns
+    function updateForecastDropdowns() {
+        const firstVal = forecastFirst.value;
+        const secondVal = forecastSecond.value;
+        Array.from(forecastSecond.options).forEach(function(opt, idx) {
+            if (idx === 0) return;
+            opt.disabled = (opt.value === firstVal && firstVal !== "");
+        });
+        Array.from(forecastFirst.options).forEach(function(opt, idx) {
+            if (idx === 0) return;
+            opt.disabled = (opt.value === secondVal && secondVal !== "");
+        });
+    }
+    forecastFirst.addEventListener('change', updateForecastDropdowns);
+    forecastSecond.addEventListener('change', updateForecastDropdowns);
+    updateForecastDropdowns();
+});
+</script>
+{% endblock %}
+
