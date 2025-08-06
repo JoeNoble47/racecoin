@@ -138,10 +138,11 @@ def logout():
 @app.route('/races')
 @login_required
 def races():
-    # Generate virtual races
+    # Generate virtual races compatible with your templates
     horse_names = [
         'Thunder Bolt', 'Lightning Strike', 'Storm Runner', 'Fire Flash', 
-        'Wind Walker', 'Golden Arrow', 'Silver Bullet', 'Royal Champion'
+        'Wind Walker', 'Golden Arrow', 'Silver Bullet', 'Royal Champion',
+        'Midnight Express', 'Golden Thunder', 'Swift Arrow', 'Dancing Star'
     ]
     
     races = []
@@ -149,15 +150,24 @@ def races():
         race_horses = random.sample(horse_names, 6)
         race = {
             'id': i + 1,
-            'title': f'Race {i + 1}',
-            'horses': [
-                {
-                    'name': horse,
-                    'odds': round(random.uniform(2.0, 8.0), 2)
-                }
-                for horse in race_horses
-            ]
+            'meeting_name': f'RaceCoin Track - Race {i + 1}',
+            'start_time': (datetime.now() + timedelta(hours=i+1)).isoformat(),
+            'track': 'RaceCoin Racecourse',
+            'race_number': i + 1,
+            'runners': []
         }
+        
+        for idx, horse in enumerate(race_horses):
+            race['runners'].append({
+                'name': horse,
+                'number': idx + 1,
+                'odds': {
+                    'decimal': round(random.uniform(2.0, 8.0), 2)
+                },
+                'jockey': f'Jockey {idx + 1}',
+                'weight': f'{random.randint(8, 10)}-{random.randint(0, 13)}'
+            })
+        
         races.append(race)
     
     return render_template('races.html', races=races)
@@ -180,7 +190,16 @@ def profile():
     if not user:
         return redirect(url_for('login'))
     
-    return render_template('profile.html', user=dict(user))
+    user_dict = dict(user)
+    # Add required fields that templates expect
+    user_dict['xp'] = 0
+    user_dict['rank'] = 'Rookie'
+    user_dict['number_rank'] = 1
+    user_dict['current_streak'] = 0
+    user_dict['biggest_single_win'] = 0
+    user_dict['login_streak'] = 0
+    
+    return render_template('profile.html', user=user_dict, achievements=[])
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
