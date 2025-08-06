@@ -49,3 +49,5 @@ api_config.json
 
 # Railway
 .railway/
+
+make_admin.py
