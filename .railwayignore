@@ -1,0 +1,6 @@
+﻿# Ignore admin utilities
+make_admin.py
+*.db
+__pycache__/
+.git/
+venv/
