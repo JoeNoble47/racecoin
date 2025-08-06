@@ -175,7 +175,31 @@ def races():
 @app.route('/place_bet/<int:race_id>')
 @login_required
 def place_bet(race_id):
+    # Simple betting page - you can expand this later
     return render_template('place_bet.html', race_id=race_id)
+
+@app.route('/results')
+@login_required  
+def results():
+    return render_template('results.html', results=[])
+
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT username, coins, wins, total_bets FROM users ORDER BY coins DESC LIMIT 10")
+    users = c.fetchall()
+    conn.close()
+    
+    leaderboard = []
+    for user in users:
+        user_dict = dict(user)
+        user_dict['rank'] = 'Rookie'
+        user_dict['achievements'] = []
+        leaderboard.append(user_dict)
+    
+    return render_template('leaderboard.html', leaderboard=leaderboard)
 
 @app.route('/profile')
 @login_required
