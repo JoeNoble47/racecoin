@@ -162,24 +162,7 @@
                                 <i class="fas fa-coins me-1"></i>{{ user_coins or 0 }} {{ currency_name }}
                             </span>
                         </li>
-                        {% if session.get('is_admin') %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-cog me-1"></i>Admin
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ url_for('api_config') }}">
-                                        <i class="fas fa-server me-1"></i>API Configuration
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('refresh_races_manual') }}">
-                                        <i class="fas fa-sync me-1"></i>Refresh Races
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('test_api_detailed') }}">
-                                        <i class="fas fa-vial me-1"></i>Test API
-                                    </a></li>
-                                </ul>
-                            </li>
-                        {% endif %}
+                        <!-- Admin section removed for simplified deployment -->
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('logout') }}">
                                 <i class="fas fa-sign-out-alt me-1"></i>Logout

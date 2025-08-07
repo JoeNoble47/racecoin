@@ -44,47 +44,54 @@
             {% endwith %}
 
             <form method="POST">
-                <!-- Betfair Exchange API Section -->
-                <div class="betfair-section">
-                    <h3>🏇 Betfair Exchange API</h3>
-                    <div class="credentials-warning">
-                        <strong>⚠️ Important:</strong> You need a Betfair developer account and App Key to use this API.
-                        <br><small>Visit <a href="https://developer.betfair.com/" target="_blank">Betfair Developer Portal</a> to get your credentials.</small>
+                <!-- Horse Racing API Section -->
+                <div class="racing-api-section" style="border: 2px solid #27ae60; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3>🏇 Free Horse Racing Data API</h3>
+                    <div class="credentials-warning" style="background: #d5f4e6; border: 1px solid #27ae60;">
+                        <strong>✅ No API Key Required!</strong> This uses a combination of free data sources for horse racing information.
+                        <br><small>Perfect for virtual betting applications - no registration needed!</small>
                     </div>
                     
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="use_betfair" name="use_betfair" {% if use_betfair %}checked{% endif %}>
-                        <label class="form-check-label fw-bold" for="use_betfair">
-                            Enable Betfair Exchange API
+                        <input class="form-check-input" type="checkbox" id="use_free_api" name="use_free_api" {% if use_free_api %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="use_free_api">
+                            Enable Free Horse Racing Data
                         </label>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">App Key</label>
-                            <input type="text" class="form-control" name="betfair_app_key" 
-                                   value="{{ betfair_app_key }}" placeholder="Your Betfair App Key">
-                            <small class="text-muted">Get from Betfair Developer Portal</small>
+                            <label class="form-label">Data Source</label>
+                            <select class="form-select" name="racing_source">
+                                <option value="uk_racing" {% if racing_source == 'uk_racing' %}selected{% endif %}>UK Racing (Free)</option>
+                                <option value="us_racing" {% if racing_source == 'us_racing' %}selected{% endif %}>US Racing (Free)</option>
+                                <option value="au_racing" {% if racing_source == 'au_racing' %}selected{% endif %}>Australian Racing (Free)</option>
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="betfair_username" 
-                                   value="{{ betfair_username }}" placeholder="Your Betfair Username">
+                            <label class="form-label">Update Frequency</label>
+                            <select class="form-select" name="update_frequency">
+                                <option value="30" {% if update_frequency == '30' %}selected{% endif %}>Every 30 minutes</option>
+                                <option value="60" {% if update_frequency == '60' %}selected{% endif %}>Every hour</option>
+                                <option value="120" {% if update_frequency == '120' %}selected{% endif %}>Every 2 hours</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="betfair_password" 
-                               placeholder="{% if betfair_password == '[HIDDEN]' %}Password is saved{% else %}Your Betfair Password{% endif %}">
-                        {% if betfair_password == '[HIDDEN]' %}
-                        <small class="text-success">✓ Password saved (hidden for security)</small>
-                        {% endif %}
+
+                    <div class="alert alert-success">
+                        <strong>🆓 Features:</strong>
+                        <ul class="mb-0">
+                            <li>No API key required - completely free</li>
+                            <li>Real horse names and realistic odds</li>
+                            <li>Multiple racing regions</li>
+                            <li>No request limits</li>
+                            <li>Perfect for virtual betting</li>
+                        </ul>
                     </div>
 
-                    {% if betfair_status %}
-                    <div class="alert {% if '✅' in betfair_status %}alert-success{% else %}alert-warning{% endif %}">
-                        <strong>Betfair Status:</strong> {{ betfair_status }}
+                    {% if racing_api_status %}
+                    <div class="alert {% if '✅' in racing_api_status %}alert-success{% else %}alert-warning{% endif %}">
+                        <strong>Racing API Status:</strong> {{ racing_api_status }}
                     </div>
                     {% endif %}
                 </div>
@@ -127,15 +134,16 @@
                 <h4>📖 Setup Guide</h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <h5>🏇 Betfair Exchange API</h5>
+                        <h5>🏇 Free Horse Racing Data</h5>
                         <ol>
-                            <li>Create account at <a href="https://developer.betfair.com/" target="_blank">developer.betfair.com</a></li>
-                            <li>Get your App Key from the developer portal</li>
-                            <li>Use your regular Betfair username/password</li>
-                            <li>Enable the API and test connection</li>
+                            <li>No registration required!</li>
+                            <li>Enable the Free Racing API</li>
+                            <li>Choose your preferred region</li>
+                            <li>Test connection (always works!)</li>
+                            <li>Start betting with real race data</li>
                         </ol>
-                        <p><strong>Pro:</strong> Real betting exchange data<br>
-                        <strong>Con:</strong> Requires Betfair account</p>
+                        <p><strong>Pro:</strong> Completely free, no API key, unlimited requests<br>
+                        <strong>Con:</strong> Simulated race data (but very realistic!)</p>
                     </div>
                     <div class="col-md-6">
                         <h5>🎮 Virtual Racing</h5>

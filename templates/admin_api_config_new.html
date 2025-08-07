@@ -44,47 +44,51 @@
             {% endwith %}
 
             <form method="POST">
-                <!-- Betfair Exchange API Section -->
-                <div class="betfair-section">
-                    <h3>🏇 Betfair Exchange API</h3>
+                <!-- SportMonks Horse Racing API Section -->
+                <div class="sportmonks-api-section" style="border: 2px solid #e67e22; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3>🏇 SportMonks Horse Racing API</h3>
                     <div class="credentials-warning">
-                        <strong>⚠️ Important:</strong> You need a Betfair developer account and App Key to use this API.
-                        <br><small>Visit <a href="https://developer.betfair.com/" target="_blank">Betfair Developer Portal</a> to get your credentials.</small>
+                        <strong>⚠️ Note:</strong> Free tier includes 180 requests/day. Excellent for virtual betting games!
+                        <br><small>Visit <a href="https://www.sportmonks.com/horse-racing-api" target="_blank">SportMonks Horse Racing API</a> to get your free API key.</small>
                     </div>
                     
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="use_betfair" name="use_betfair" {% if use_betfair %}checked{% endif %}>
-                        <label class="form-check-label fw-bold" for="use_betfair">
-                            Enable Betfair Exchange API
+                        <input class="form-check-input" type="checkbox" id="use_sportmonks" name="use_sportmonks" {% if use_sportmonks %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="use_sportmonks">
+                            Enable SportMonks Horse Racing API
                         </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">API Key</label>
+                        <input type="text" class="form-control" name="sportmonks_api_key" 
+                               value="{{ sportmonks_api_key }}" placeholder="Your SportMonks API Key">
+                        <small class="text-muted">Get your free API key from sportmonks.com</small>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">App Key</label>
-                            <input type="text" class="form-control" name="betfair_app_key" 
-                                   value="{{ betfair_app_key }}" placeholder="Your Betfair App Key">
-                            <small class="text-muted">Get from Betfair Developer Portal</small>
+                            <label class="form-label">Region</label>
+                            <select class="form-select" name="sportmonks_region">
+                                <option value="uk" {% if sportmonks_region == 'uk' %}selected{% endif %}>United Kingdom</option>
+                                <option value="us" {% if sportmonks_region == 'us' %}selected{% endif %}>United States</option>
+                                <option value="au" {% if sportmonks_region == 'au' %}selected{% endif %}>Australia</option>
+                                <option value="ie" {% if sportmonks_region == 'ie' %}selected{% endif %}>Ireland</option>
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="betfair_username" 
-                                   value="{{ betfair_username }}" placeholder="Your Betfair Username">
+                            <label class="form-label">Update Frequency</label>
+                            <select class="form-select" name="update_frequency">
+                                <option value="30" {% if update_frequency == '30' %}selected{% endif %}>Every 30 minutes</option>
+                                <option value="60" {% if update_frequency == '60' %}selected{% endif %}>Every hour</option>
+                                <option value="120" {% if update_frequency == '120' %}selected{% endif %}>Every 2 hours</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="betfair_password" 
-                               placeholder="{% if betfair_password == '[HIDDEN]' %}Password is saved{% else %}Your Betfair Password{% endif %}">
-                        {% if betfair_password == '[HIDDEN]' %}
-                        <small class="text-success">✓ Password saved (hidden for security)</small>
-                        {% endif %}
-                    </div>
 
-                    {% if betfair_status %}
-                    <div class="alert {% if '✅' in betfair_status %}alert-success{% else %}alert-warning{% endif %}">
-                        <strong>Betfair Status:</strong> {{ betfair_status }}
+                    {% if sportmonks_api_status %}
+                    <div class="alert {% if '✅' in sportmonks_api_status %}alert-success{% else %}alert-warning{% endif %}">
+                        <strong>SportMonks API Status:</strong> {{ sportmonks_api_status }}
                     </div>
                     {% endif %}
                 </div>
@@ -127,15 +131,16 @@
                 <h4>📖 Setup Guide</h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <h5>🏇 Betfair Exchange API</h5>
+                        <h5>🏇 SportMonks Horse Racing API</h5>
                         <ol>
-                            <li>Create account at <a href="https://developer.betfair.com/" target="_blank">developer.betfair.com</a></li>
-                            <li>Get your App Key from the developer portal</li>
-                            <li>Use your regular Betfair username/password</li>
+                            <li>Visit <a href="https://www.sportmonks.com/horse-racing-api" target="_blank">sportmonks.com</a></li>
+                            <li>Sign up for a free account</li>
+                            <li>Get your API key from the dashboard</li>
+                            <li>Choose your preferred racing region</li>
                             <li>Enable the API and test connection</li>
                         </ol>
-                        <p><strong>Pro:</strong> Real betting exchange data<br>
-                        <strong>Con:</strong> Requires Betfair account</p>
+                        <p><strong>Pro:</strong> 180 requests/day free, comprehensive horse racing data, reliable<br>
+                        <strong>Con:</strong> Daily request limit</p>
                     </div>
                     <div class="col-md-6">
                         <h5>🎮 Virtual Racing</h5>

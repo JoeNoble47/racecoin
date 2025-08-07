@@ -44,47 +44,50 @@
             {% endwith %}
 
             <form method="POST">
-                <!-- Betfair Exchange API Section -->
-                <div class="betfair-section">
-                    <h3>🏇 Betfair Exchange API</h3>
+                <!-- The Odds API Section -->
+                <div class="odds-api-section" style="border: 2px solid #3498db; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3>🏇 The Odds API - Horse Racing</h3>
                     <div class="credentials-warning">
-                        <strong>⚠️ Important:</strong> You need a Betfair developer account and App Key to use this API.
-                        <br><small>Visit <a href="https://developer.betfair.com/" target="_blank">Betfair Developer Portal</a> to get your credentials.</small>
+                        <strong>⚠️ Note:</strong> Free tier includes 500 requests/month. Perfect for virtual betting games!
+                        <br><small>Visit <a href="https://the-odds-api.com/" target="_blank">The Odds API</a> to get your free API key.</small>
                     </div>
                     
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="use_betfair" name="use_betfair" {% if use_betfair %}checked{% endif %}>
-                        <label class="form-check-label fw-bold" for="use_betfair">
-                            Enable Betfair Exchange API
+                        <input class="form-check-input" type="checkbox" id="use_odds_api" name="use_odds_api" {% if use_odds_api %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="use_odds_api">
+                            Enable The Odds API
                         </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">API Key</label>
+                        <input type="text" class="form-control" name="odds_api_key" 
+                               value="{{ odds_api_key }}" placeholder="Your The Odds API Key">
+                        <small class="text-muted">Get your free API key from the-odds-api.com</small>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">App Key</label>
-                            <input type="text" class="form-control" name="betfair_app_key" 
-                                   value="{{ betfair_app_key }}" placeholder="Your Betfair App Key">
-                            <small class="text-muted">Get from Betfair Developer Portal</small>
+                            <label class="form-label">Sport</label>
+                            <select class="form-select" name="odds_sport">
+                                <option value="horse_racing_uk" {% if odds_sport == 'horse_racing_uk' %}selected{% endif %}>UK Horse Racing</option>
+                                <option value="horse_racing_us" {% if odds_sport == 'horse_racing_us' %}selected{% endif %}>US Horse Racing</option>
+                                <option value="horse_racing_au" {% if odds_sport == 'horse_racing_au' %}selected{% endif %}>Australian Horse Racing</option>
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="betfair_username" 
-                                   value="{{ betfair_username }}" placeholder="Your Betfair Username">
+                            <label class="form-label">Update Frequency</label>
+                            <select class="form-select" name="update_frequency">
+                                <option value="30" {% if update_frequency == '30' %}selected{% endif %}>Every 30 minutes</option>
+                                <option value="60" {% if update_frequency == '60' %}selected{% endif %}>Every hour</option>
+                                <option value="120" {% if update_frequency == '120' %}selected{% endif %}>Every 2 hours</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="betfair_password" 
-                               placeholder="{% if betfair_password == '[HIDDEN]' %}Password is saved{% else %}Your Betfair Password{% endif %}">
-                        {% if betfair_password == '[HIDDEN]' %}
-                        <small class="text-success">✓ Password saved (hidden for security)</small>
-                        {% endif %}
-                    </div>
 
-                    {% if betfair_status %}
-                    <div class="alert {% if '✅' in betfair_status %}alert-success{% else %}alert-warning{% endif %}">
-                        <strong>Betfair Status:</strong> {{ betfair_status }}
+                    {% if odds_api_status %}
+                    <div class="alert {% if '✅' in odds_api_status %}alert-success{% else %}alert-warning{% endif %}">
+                        <strong>The Odds API Status:</strong> {{ odds_api_status }}
                     </div>
                     {% endif %}
                 </div>
@@ -127,15 +130,16 @@
                 <h4>📖 Setup Guide</h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <h5>🏇 Betfair Exchange API</h5>
+                        <h5>🏇 The Odds API</h5>
                         <ol>
-                            <li>Create account at <a href="https://developer.betfair.com/" target="_blank">developer.betfair.com</a></li>
-                            <li>Get your App Key from the developer portal</li>
-                            <li>Use your regular Betfair username/password</li>
+                            <li>Visit <a href="https://the-odds-api.com/" target="_blank">the-odds-api.com</a></li>
+                            <li>Sign up for a free account</li>
+                            <li>Get your API key from the dashboard</li>
+                            <li>Choose your preferred horse racing region</li>
                             <li>Enable the API and test connection</li>
                         </ol>
-                        <p><strong>Pro:</strong> Real betting exchange data<br>
-                        <strong>Con:</strong> Requires Betfair account</p>
+                        <p><strong>Pro:</strong> Free tier, real racing data, virtual betting friendly<br>
+                        <strong>Con:</strong> 500 requests/month limit on free tier</p>
                     </div>
                     <div class="col-md-6">
                         <h5>🎮 Virtual Racing</h5>
@@ -160,12 +164,13 @@
             <div class="mt-4 p-3 bg-light rounded">
                 <h6>📋 Setup Instructions:</h6>
                 <ol>
-                    <li><strong>For RapidAPI (Recommended):</strong>
+                    <li><strong>For The Odds API (Recommended):</strong>
                         <ul>
-                            <li>Visit <a href="https://rapidapi.com/horse-racing/api/horse-racing" target="_blank">RapidAPI Horse Racing</a></li>
+                            <li>Visit <a href="https://the-odds-api.com/" target="_blank">The Odds API</a></li>
                             <li>Sign up for a free account</li>
-                            <li>Subscribe to the Horse Racing API (free tier available)</li>
-                            <li>Copy your X-RapidAPI-Key from the dashboard</li>
+                            <li>Get your API key from dashboard</li>
+                            <li>Choose horse racing region (UK/US/AU)</li>
+                            <li>Perfect for virtual betting applications!</li>
                         </ul>
                     </li>
                     <li><strong>For The Odds API:</strong>
@@ -193,7 +198,7 @@
                 {% endif %}
                 
                 <div class="alert alert-success mt-2">
-                    <strong>💡 Tip:</strong> RapidAPI Horse Racing provides actual race cards, runner details, and live odds. The app automatically falls back to virtual races if the API is unavailable.
+                    <strong>💡 Tip:</strong> The Odds API provides real horse racing data and odds perfect for virtual betting games. The app automatically falls back to virtual races if the API is unavailable.
                 </div>
             </div>
         </div>
@@ -206,15 +211,15 @@
             const provider = this.value;
             const instructions = document.getElementById('api-instructions');
             
-            if (provider === 'rapidapi') {
+            if (provider === 'theodds') {
                 instructions.innerHTML = `
-                    Get your free API key from <a href="https://rapidapi.com/horse-racing/api/horse-racing" target="_blank">RapidAPI Horse Racing</a>
+                    Get your free API key from <a href="https://the-odds-api.com/" target="_blank">The Odds API</a>
                     <br>Free tier available with real horse racing data
                 `;
             } else {
                 instructions.innerHTML = `
                     Get your free API key from <a href="https://the-odds-api.com/" target="_blank">The Odds API</a>
-                    <br>Note: This API doesn't provide horse racing data
+                    <br>Supports horse racing odds and data perfect for virtual betting
                 `;
             }
         });
